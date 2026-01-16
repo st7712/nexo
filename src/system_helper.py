@@ -32,12 +32,12 @@ def is_spotify_active():
     except subprocess.CalledProcessError:
         return False, None
 
-def play_sound(filepath):
+def play_sound(filepath, volume=16384):
     """
     Plays a WAV file through PulseAudio/PipeWire using paplay.
     """
     if os.path.exists(filepath):
-        subprocess.Popen(["paplay", filepath, "--volume=16384"])  # Volume is 0-65536
+        subprocess.Popen(["paplay", filepath, f"--volume={volume}"])  # Volume is 0-65536
     else:
         print(f"Sound file not found: {filepath}")
 
