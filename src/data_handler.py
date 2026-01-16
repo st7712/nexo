@@ -2,12 +2,15 @@ import json
 import os
 import uuid
 import system_helper as system
+from pathlib import Path
 
-CONFIG_FILE = "/home/pi/nexo/src/nexo_config.json"
+CONFIG_FILE = Path(__file__).resolve().parent / "assets" / "nexo_config.json"
 DEFAULT_CONFIG = {
     "device_name": "Nexo Home",
     "device_id": uuid.uuid4().hex,
     "volume": 100,
+    "max_volume": 30,
+    "root_path": str(Path(__file__).resolve().parent),
     "sounds": True,
     "wifi": {
         "ssid": system.get_current_wifi_ssid() or "",
@@ -46,7 +49,7 @@ class DataHandler:
 
     def _load_data(self):
         """Loads JSON from disk or creates default if missing."""
-        if not os.path.exists(self.filepath):
+        if not self.filepath.exists():
             print(f"Config file not found. Creating default at {self.filepath}")
             self._save_to_disk(DEFAULT_CONFIG)
             return DEFAULT_CONFIG.copy()
@@ -60,7 +63,7 @@ class DataHandler:
 
     def _save_to_disk(self, data):
         """Atomic write: Write to temp, then rename."""
-        temp_file = f"{self.filepath}.tmp"
+        temp_file = self.filepath.with_suffix(self.filepath.suffix + ".tmp")
         try:
             with open(temp_file, 'w') as f:
                 json.dump(data, f, indent=4)
