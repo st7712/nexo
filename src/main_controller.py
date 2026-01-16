@@ -12,7 +12,8 @@ import data_handler
 # This dictionary lives here. Anyone importing this file shares this state
 # (as long as they run in the same process).
 state = {
-    'volume': 50,
+    'volume': data_handler.db.get("volume", 50),
+    'max_volume': data_handler.db.get("max_volume", 30),
     'current_mode': 'spotify', # 'spotify' or 'bluetooth'
     'bt_owner_mac': None,
     'click_count': 0,
@@ -121,6 +122,8 @@ def background_worker_loop():
     """
     The main brain loop. Checks priority, muting, and bluetooth security.
     """
+    hardware_sink = system.find_hardware_sink()
+    
     while True:
         # Check Spotify Status
         spotify_active, status = system.is_spotify_active()
@@ -170,6 +173,8 @@ def background_worker_loop():
         # Bluetooth Security
         if state['current_mode'] == 'bluetooth':
             _bluetooth_bouncer()
+
+        system.set_hardware_volume(state['max_volume'], forced_sink=hardware_sink)
 
         sleep(2)
 

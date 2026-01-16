@@ -138,7 +138,7 @@ print(db.get("volume"))
 print("--- DEBUG CONFIG ---")
 print(db.get_all())
 # Run System Startup (Carla, Spotifyd)
-startup.start_up(db.get("volume", 50))
+startup.start_up(db.get("volume", 50), db.get("max_volume", 30))
 
 # Sync Initial Volume
 controller.sync_volume()

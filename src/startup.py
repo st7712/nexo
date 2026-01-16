@@ -75,7 +75,7 @@ def start_spotifyd(vol=50):
     except Exception as e:
         print(f"Error starting spotifyd: {e}")
 
-def start_up(vol=50):
+def start_up(vol=50, max_vol=30):
     """
     Starts up necessary services: Carla and spotifyd.
     """
@@ -85,3 +85,6 @@ def start_up(vol=50):
     sleep(5)  # Give services time to initialize
     link_carla()
     print("Carla connected to virtual cable and DAC.")
+    system_helper.set_hardware_volume(max_vol)
+    system_helper.set_hardware_volume(max_vol, forced_sink="alsa_output.platform-soc_107c000000_sound.stereo-fallback")
+    print(f"Volume set to {max_vol}% on hardware sink.")
