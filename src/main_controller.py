@@ -23,7 +23,7 @@ state = {
     'active_btn': None,
 }
 
-CONNECT_SOUND_PATH = "/home/pi/nexo/src/connect.wav"
+CONNECT_SOUND_PATH = f"{data_handler.db.get('root_path')}/assets/connect.wav"
 
 # volume functions
 def sync_volume():
@@ -159,7 +159,7 @@ def background_worker_loop():
             print(">>> Priority: Spotify took over.")
             system.turn_off_bluetooth()
             state['current_mode'] = 'spotify'
-            system.play_sound(CONNECT_SOUND_PATH)
+            system.play_sound(CONNECT_SOUND_PATH, volume=state['volume'] * 655)  # Scale 0-100 to 0-65536
             leds.ramp_main_led(1.0) # Feedback
 
         # Spotify stopped -> Restore BT
