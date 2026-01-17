@@ -18,7 +18,7 @@ $VENV_PYTHON "$PROJECT_ROOT/mute.py"
 echo "Starting Carla..."
 # It's usually better to check if it's already running to avoid duplicates
 if ! pgrep -x "CarlaUE4-Linux-" > /dev/null; then
-    /usr/bin/carla "./assets/config/DSP.carxp" &
+    /usr/bin/carla "$SCRIPT_DIR/assets/config/DSP.carxp" &
 fi
 
 # 4. Launch Main Python Code
