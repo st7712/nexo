@@ -74,6 +74,16 @@ def start_spotifyd(vol=50):
         print("spotifyd started.")
     except Exception as e:
         print(f"Error starting spotifyd: {e}")
+        
+def set_default_sink():
+    """
+    Sets the default PipeWire sink to the virtual cable.
+    """
+    try:
+        subprocess.run(["pactl", "set-default-sink", "VirtualCable"], check=True)
+        print("Default sink set to VirtualCable.")
+    except Exception as e:
+        print(f"Error setting default sink: {e}")
 
 def start_up(vol=50, max_vol=30):
     """
@@ -88,3 +98,5 @@ def start_up(vol=50, max_vol=30):
     system_helper.set_hardware_volume(max_vol)
     system_helper.set_hardware_volume(max_vol, forced_sink="alsa_output.platform-soc_107c000000_sound.stereo-fallback")
     print(f"Volume set to {max_vol}% on hardware sink.")
+    set_default_sink()
+    print("--- STARTUP COMPLETE ---")
