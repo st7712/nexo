@@ -133,6 +133,7 @@ btn_play.when_held = on_play_hold
 # Startup Sequence
 sleep(3) # Wait for system to settle
 print("--- BOOTING NEXO SPEAKER ---")
+leds.set_amp_mute(True) # Mute Amp during startup
 print(db.get("volume"))
 
 print("--- DEBUG CONFIG ---")
