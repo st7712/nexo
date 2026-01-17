@@ -4,13 +4,13 @@ import uuid
 import system_helper as system
 from pathlib import Path
 
-CONFIG_FILE = Path(__file__).resolve().parent / "assets" / "nexo_config.json"
+CONFIG_FILE = Path(__file__).resolve().parent.parent / "assets" / "config" / "nexo_config.json"
 DEFAULT_CONFIG = {
     "device_name": "Nexo Home",
     "device_id": uuid.uuid4().hex,
     "volume": 100,
     "max_volume": 30,
-    "root_path": str(Path(__file__).resolve().parent),
+    "root_path": str(Path(__file__).resolve().parent.parent),
     "sounds": True,
     "wifi": {
         "ssid": system.get_current_wifi_ssid() or "",

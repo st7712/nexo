@@ -23,7 +23,7 @@ state = {
     'active_btn': None,
 }
 
-CONNECT_SOUND_PATH = f"{data_handler.db.get('root_path')}/assets/connect.wav"
+CONNECT_SOUND_PATH = f"{data_handler.db.get('root_path')}/assets/sounds/connect.wav"
 
 # volume functions
 def sync_volume():
