@@ -19,8 +19,6 @@ echo "Starting Carla..."
 # It's usually better to check if it's already running to avoid duplicates
 if ! pgrep -x "CarlaUE4-Linux-" > /dev/null; then
     /usr/bin/carla "./src/assets/DSP.carxp" &
-    
-    sleep 3
 fi
 
 # 4. Launch Main Python Code
