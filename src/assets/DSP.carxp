@@ -1,0 +1,279 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE CARLA-PROJECT>
+<CARLA-PROJECT VERSION='2.5'>
+ <EngineSettings>
+  <ForceStereo>false</ForceStereo>
+  <PreferPluginBridges>false</PreferPluginBridges>
+  <PreferUiBridges>true</PreferUiBridges>
+  <UIsAlwaysOnTop>false</UIsAlwaysOnTop>
+  <MaxParameters>200</MaxParameters>
+  <UIBridgesTimeout>4000</UIBridgesTimeout>
+ </EngineSettings>
+
+ <Transport>
+  <BeatsPerMinute>120</BeatsPerMinute>
+ </Transport>
+
+ <!-- Graphic Equalizer x16 Mono -->
+ <Plugin>
+  <Info>
+   <Type>VST2</Type>
+   <Name>Graphic Equalizer x16 Mono</Name>
+   <Binary>/usr/lib/vst/lsp-plugins.vst/graph-equalizer-x16-mono.so</Binary>
+   <UniqueID>1920366443</UniqueID>
+  </Info>
+
+  <Data>
+   <Active>Yes</Active>
+   <ControlChannel>1</ControlChannel>
+   <Options>0x9</Options>
+
+   <CustomData>
+    <Type>http://kxstudio.sf.net/ns/carla/property</Type>
+    <Key>CarlaSkinIsCompacted</Key>
+    <Value>false</Value>
+   </CustomData>
+
+   <Chunk>
+Q2NuSwAABLNGQkNoAAAAAXJ2d2sAAAu4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEG0xTUFUAAAQLAAALuExTUFUAAAAL
+YnlwYXNzAD+AAAAAAAAJZ19pbgA/D+r8AAAACmdfb3V0AD+AAAAAAAAJbW9kZQAAAAAAAAAACnNsb3BlAAAAAAAAAAAKcmVhY3QAPkzMzQAAAApzaGlmdAA/
+gAAAAAAACXpvb20AP4AAAAAAAAZzZW5kAAAAAAAIcmV0dXJuAAAAAAAIaWZlAD+AAAAAAAAIb2ZlAD+AAAAAAAAIcmZlAD+AAAAAAAAJeHNfMAAAAAAAAAAA
+CXhtXzAAAAAAAAAAAAl4ZV8wAD+AAAAAAAAIZ18wAD+AAAAAAAAJeHNfMQAAAAAAAAAACXhtXzEAAAAAAAAAAAl4ZV8xAD+AAAAAAAAIZ18xAD+AAAAAAAAJ
+eHNfMgAAAAAAAAAACXhtXzIAAAAAAAAAAAl4ZV8yAD+AAAAAAAAIZ18yAD+AAAAAAAAJeHNfMwAAAAAAAAAACXhtXzMAAAAAAAAAAAl4ZV8zAD+AAAAAAAAI
+Z18zAD+AAAAAAAAJeHNfNAAAAAAAAAAACXhtXzQAAAAAAAAAAAl4ZV80AD+AAAAAAAAIZ180AD+AAAAAAAAJeHNfNQAAAAAAAAAACXhtXzUAAAAAAAAAAAl4
+ZV81AD+AAAAAAAAIZ181AD+AAAAAAAAJeHNfNgAAAAAAAAAACXhtXzYAAAAAAAAAAAl4ZV82AD+AAAAAAAAIZ182AD+AAAAAAAAJeHNfNwAAAAAAAAAACXht
+XzcAAAAAAAAAAAl4ZV83AD+AAAAAAAAIZ183AD+AAAAAAAAJeHNfOAAAAAAAAAAACXhtXzgAAAAAAAAAAAl4ZV84AD+AAAAAAAAIZ184AD+AAAAAAAAJeHNf
+OQAAAAAAAAAACXhtXzkAAAAAAAAAAAl4ZV85AD+AAAAAAAAIZ185AD+AAAAAAAAKeHNfMTAAAAAAAAAAAAp4bV8xMAAAAAAAAAAACnhlXzEwAD+AAAAAAAAJ
+Z18xMAA/gAAAAAAACnhzXzExAAAAAAAAAAAKeG1fMTEAAAAAAAAAAAp4ZV8xMQA/gAAAAAAACWdfMTEAP4AAAAAAAAp4c18xMgAAAAAAAAAACnhtXzEyAAAA
+AAAAAAAKeGVfMTIAP4AAAAAAAAlnXzEyAD+AAAAAAAAKeHNfMTMAAAAAAAAAAAp4bV8xMwAAAAAAAAAACnhlXzEzAD+AAAAAAAAJZ18xMwA/gAAAAAAACnhz
+XzE0AAAAAAAAAAAKeG1fMTQAAAAAAAAAAAp4ZV8xNAA/gAAAAAAACWdfMTQAP4AAAAAAAAp4c18xNQAAAAAAAAAACnhtXzE1AAAAAAAAAAAKeGVfMTUAP4AA
+AAAAAAlnXzE1AD+AAAAAAAAXIXByZXNldF9zdGF0ZQAAAAAAAAAAAAA=
+   </Chunk>
+  </Data>
+ </Plugin>
+
+ <!-- 3 Band Splitter -->
+ <Plugin>
+  <Info>
+   <Type>INTERNAL</Type>
+   <Name>3 Band Splitter</Name>
+   <Label>3bandsplitter</Label>
+  </Info>
+
+  <Data>
+   <Active>Yes</Active>
+   <ControlChannel>1</ControlChannel>
+   <Options>0x4</Options>
+
+   <Parameter>
+    <Index>0</Index>
+    <Name>Low</Name>
+    <Value>0</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>1</Index>
+    <Name>Mid</Name>
+    <Value>-19</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>2</Index>
+    <Name>High</Name>
+    <Value>-24</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>3</Index>
+    <Name>Master</Name>
+    <Value>0</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>4</Index>
+    <Name>Low-Mid Freq</Name>
+    <Value>220</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>5</Index>
+    <Name>Mid-High Freq</Name>
+    <Value>1000</Value>
+   </Parameter>
+
+   <CurrentMidiBank>1</CurrentMidiBank>
+   <CurrentMidiProgram>1</CurrentMidiProgram>
+
+   <CustomData>
+    <Type>http://kxstudio.sf.net/ns/carla/property</Type>
+    <Key>CarlaSkinIsCompacted</Key>
+    <Value>false</Value>
+   </CustomData>
+  </Data>
+ </Plugin>
+
+ <!-- 3 Band Splitter -->
+ <Plugin>
+  <Info>
+   <Type>INTERNAL</Type>
+   <Name>3 Band Splitter (2)</Name>
+   <Label>3bandsplitter</Label>
+  </Info>
+
+  <Data>
+   <Active>Yes</Active>
+   <ControlChannel>1</ControlChannel>
+   <Options>0x4</Options>
+
+   <Parameter>
+    <Index>0</Index>
+    <Name>Low</Name>
+    <Value>-24</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>1</Index>
+    <Name>Mid</Name>
+    <Value>0</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>2</Index>
+    <Name>High</Name>
+    <Value>0</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>3</Index>
+    <Name>Master</Name>
+    <Value>-16</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>4</Index>
+    <Name>Low-Mid Freq</Name>
+    <Value>220</Value>
+   </Parameter>
+
+   <Parameter>
+    <Index>5</Index>
+    <Name>Mid-High Freq</Name>
+    <Value>2000</Value>
+   </Parameter>
+
+   <CurrentMidiBank>1</CurrentMidiBank>
+   <CurrentMidiProgram>1</CurrentMidiProgram>
+
+   <CustomData>
+    <Type>http://kxstudio.sf.net/ns/carla/property</Type>
+    <Key>CarlaSkinIsCompacted</Key>
+    <Value>false</Value>
+   </CustomData>
+  </Data>
+ </Plugin>
+
+ <!-- Limiter Mono -->
+ <Plugin>
+  <Info>
+   <Type>VST2</Type>
+   <Name>Limiter Mono</Name>
+   <Binary>/usr/lib/vst/lsp-plugins.vst/limiter-mono.so</Binary>
+   <UniqueID>1786393978</UniqueID>
+  </Info>
+
+  <Data>
+   <Active>Yes</Active>
+   <ControlChannel>1</ControlChannel>
+   <Options>0x9</Options>
+
+   <CustomData>
+    <Type>http://kxstudio.sf.net/ns/carla/property</Type>
+    <Key>CarlaSkinIsCompacted</Key>
+    <Value>false</Value>
+   </CustomData>
+
+   <Chunk>
+Q2NuSwAAAjBGQkNoAAAAAWp6NXoAAAu4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmExTUFUAAAGIAAALuExTUFUAAAAG
+bGluawAAAAAADHNob3dwbXgAAAAAAAAAAAppbjJsawAAAAAAAAAACmxrMmluAAAAAAAAAAAKbGsyc2MAAAAAAAAAAAtieXBhc3MAAAAAAAAAAAlnX2luAD+A
+AAEAAAAKZ19vdXQAP4AAAAAAAAhzY3AAP4AAAAAAAAhhbHIAAAAAAAAAAAthbHJfYXQAQKAAAgAAAAthbHJfcnQAQkgAAAAAAAltb2RlAAAAAAAAAAAHdGgA
+P2U2ogAAAAlrbmVlAD+AAAAAAAAKYm9vc3QAAAAAAAAAAAdsawBAn///AAAAB2F0AECgAAAAAAAHcnQAQKAAAAAAAAhvdnMAAAAAAAAAAAlkaXRoAAAAAAAA
+AAAKcGF1c2UAAAAAAAAAAApjbGVhcgAAAAAAAAAACmV4dHNjAAAAAAAAAAAIaWd2AD+AAAAAAAAIb2d2AD+AAAAAAAAJc2NndgA/gAAAAAAACWdyZ3YAP4AA
+AAAAABchcHJlc2V0X3N0YXRlAAAAAAAAAAAAAA==
+   </Chunk>
+  </Data>
+ </Plugin>
+
+ <Patchbay>
+  <Connection>
+   <Source>3 Band Splitter:output_1</Source>
+   <Target>Audio Output:Right</Target>
+  </Connection>
+  <Connection>
+   <Source>3 Band Splitter:output_3</Source>
+   <Target>Audio Output:Right</Target>
+  </Connection>
+  <Connection>
+   <Source>3 Band Splitter (2):output_1</Source>
+   <Target>Audio Output:Left</Target>
+  </Connection>
+  <Connection>
+   <Source>3 Band Splitter (2):output_3</Source>
+   <Target>Audio Output:Left</Target>
+  </Connection>
+  <Connection>
+   <Source>3 Band Splitter (2):output_5</Source>
+   <Target>Audio Output:Left</Target>
+  </Connection>
+  <Connection>
+   <Source>Limiter Mono:output</Source>
+   <Target>3 Band Splitter:input_1</Target>
+  </Connection>
+  <Connection>
+   <Source>Limiter Mono:output</Source>
+   <Target>3 Band Splitter (2):input_1</Target>
+  </Connection>
+  <Connection>
+   <Source>Audio Input:Left</Source>
+   <Target>Graphic Equalizer x16 Mono:input</Target>
+  </Connection>
+  <Connection>
+   <Source>Audio Input:Right</Source>
+   <Target>Graphic Equalizer x16 Mono:input</Target>
+  </Connection>
+  <Connection>
+   <Source>Graphic Equalizer x16 Mono:output</Source>
+   <Target>Limiter Mono:input</Target>
+  </Connection>
+  <Positions>
+   <Position x1="1731" y1="1337" pluginId="3">
+    <Name>Limiter Mono</Name>
+   </Position>
+   <Position x1="1900" y1="1230" pluginId="2">
+    <Name>3 Band Splitter (2)</Name>
+   </Position>
+   <Position x1="1916" y1="1393" pluginId="1">
+    <Name>3 Band Splitter</Name>
+   </Position>
+   <Position x1="1437" y1="1326" pluginId="0">
+    <Name>Graphic Equalizer x16 Mono</Name>
+   </Position>
+   <Position x1="1550" y1="1418" x2="1877" y2="1119">
+    <Name>Midi Output</Name>
+   </Position>
+   <Position x1="1566" y1="1535" x2="1943" y2="1355">
+    <Name>Midi Input</Name>
+   </Position>
+   <Position x1="1550" y1="1281" x2="2174" y2="1318">
+    <Name>Audio Output</Name>
+   </Position>
+   <Position x1="1262" y1="1321" x2="1952" y2="1200">
+    <Name>Audio Input</Name>
+   </Position>
+  </Positions>
+ </Patchbay>
+
+ <ExternalPatchbay>
+ </ExternalPatchbay>
+</CARLA-PROJECT>
