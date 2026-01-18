@@ -7,20 +7,31 @@ PROJECT_ROOT="$SCRIPT_DIR/src"
 # Path to the virtual environment python executable
 VENV_PYTHON="$SCRIPT_DIR/.venv/bin/python"
 
-# 1. Force Display
-export DISPLAY=:0
+# Wait for PipeWire to be ready
+sleep 15
 
-# 2. Mute AMP + DAC output
+# Mute AMP + DAC output
 echo "Muting Amp..."
 $VENV_PYTHON "$PROJECT_ROOT/mute.py"
 
-# 3. Launch Carla
+# Launch Carla
 echo "Starting Carla..."
 # It's usually better to check if it's already running to avoid duplicates
-if ! pgrep -x "CarlaUE4-Linux-" > /dev/null; then
-    /usr/bin/carla "$SCRIPT_DIR/assets/config/DSP.carxp" &
+if ! pgrep -x "carla" > /dev/null; then
+    xvfb-run -a /usr/bin/carla "$SCRIPT_DIR/assets/config/DSP.carxp" &
+    # Wait for Carla to load
+    echo "Waiting for Carla process..."
+    for i in {1..15}; do
+        if pgrep -f "carla" > /dev/null; then
+            echo "Carla started!"
+            break
+        fi
+        sleep 1
+    done
+
+    sleep 5
 fi
 
-# 4. Launch Main Python Code
+# Launch Main Python Code
 echo "Starting Main Controller..."
 $VENV_PYTHON "$PROJECT_ROOT/main.py"
