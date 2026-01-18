@@ -44,6 +44,7 @@ check_status() {
         echo -e "${GREEN}[OK] $1${NC}"
     else
         echo -e "${RED}[ERROR] $1 failed!${NC}"
+        echo -e "${RED}Try re-running the installer.${NC}"
         exit 1
     fi
 }
@@ -73,6 +74,7 @@ REQUIRED_PKGS=(
     "playerctl"
     "pulseaudio-utils"
     "xvfb"
+    "libdbus-1-dev"
 )
 
 echo -e "${YELLOW}--> Checking System Dependencies...${NC}"
@@ -152,6 +154,11 @@ if ! command -v spotifyd &> /dev/null; then
     check_status "Spotifyd Compilation"
 else
     echo -e "${GREEN}[OK] Spotifyd is already installed.${NC}"
+fi
+
+if ! command -v spotifyd &> /dev/null; then
+    echo -e "${RED}Error: spotifyd installation failed.${NC}"
+    exit 1
 fi
 
 # --- DEPLOY CONFIGS ---
