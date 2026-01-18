@@ -70,6 +70,9 @@ REQUIRED_PKGS=(
     "bluez-tools"
     "curl"
     "p7zip-full"
+    "playerctl"
+    "pulseaudio-utils"
+    "xvfb"
 )
 
 echo -e "${YELLOW}--> Checking System Dependencies...${NC}"
@@ -116,7 +119,7 @@ deactivate
 
 # --- INSTALL CARLA ---
 echo -e "${YELLOW}--> Checking Carla...${NC}"
-if ! dpkg -l | grep -q carla-git; then
+if ! dpkg -l | grep -q carla; then
     wget https://launchpad.net/~kxstudio-debian/+archive/kxstudio/+files/kxstudio-repos_11.2.0_all.deb
     dpkg -i kxstudio-repos_11.2.0_all.deb
     apt-get update
@@ -241,6 +244,21 @@ default-fragment-size-msec = 10
 EOF
 fi
 
+echo "Configuring PipeWire"
+    # Create a drop-in config for PipeWire to force 48kHz
+    PW_CONF_DIR="$USER_HOME/.config/pipewire/pipewire.conf.d"
+    mkdir -p "$PW_CONF_DIR"
+
+    cat <<EOF > "$PW_CONF_DIR/10-nexo-rate.conf"
+context.properties = {
+    default.clock.rate = 48000
+    default.clock.allowed-rates = [ 48000 ]
+    default.clock.quantum = 1024
+}
+EOF
+    chown -R $SUDO_USER:$SUDO_USER "$USER_HOME/.config/pipewire"
+    check_status "PipeWire Optimization"
+
 # --- BLUETOOTH CONFIG ---
 echo -e "${YELLOW}--> Configuring Bluetooth...${NC}"
 BT_CONF="/etc/bluetooth/main.conf"
@@ -271,12 +289,13 @@ mkdir -p "$(dirname "$SERVICE_FILE")"
 cat <<EOF > "$SERVICE_FILE"
 [Unit]
 Description=Nexo Smart Speaker Controller
-After=network.target sound.target pipewire.service
-Wants=pipewire.service
+After=network.target sound.target pipewire.service graphical-session.target bluetooth.service
+Wants=pipewire.service bluetooth.service
 
 [Service]
 Type=simple
 WorkingDirectory=$PROJECT_DIR
+ExecStartPre=/bin/sleep 30
 ExecStart=$PROJECT_DIR/launch.sh
 Restart=always
 RestartSec=5
@@ -287,8 +306,18 @@ EOF
 chown -R $SUDO_USER:$SUDO_USER "$(dirname "$SERVICE_FILE")"
 
 # Enable service as the user
-sudo -u $SUDO_USER systemctl --user enable nexo-speaker.service
+# Enable "Lingering" first (Crucial for headless operation)
 loginctl enable-linger $SUDO_USER
+
+# Get the User ID (usually 1000 for the first user)
+TARGET_UID=$(id -u $SUDO_USER)
+export XDG_RUNTIME_DIR="/run/user/$TARGET_UID"
+
+# Enable the service explicitly setting the Bus location
+echo "Enabling service for user: $SUDO_USER (UID: $TARGET_UID)..."
+sudo -E -u $SUDO_USER systemctl --user daemon-reload
+sudo -E -u $SUDO_USER systemctl --user enable nexo-speaker.service
+check_status "Service Enable"
 
 echo -e "${GREEN}=========================================${NC}"
 echo -e "${GREEN}   INSTALLATION COMPLETE! REBOOTING...   ${NC}"
