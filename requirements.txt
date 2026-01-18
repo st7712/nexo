@@ -1,6 +1,6 @@
 gpiozero==2.0.1
 uvicorn==0.40.0
 lgpio==0.2.2.0
-dbus-python==1.4.0
+dbus-next==0.2.3
 fastapi[standard]
 python-osc==1.9.3
