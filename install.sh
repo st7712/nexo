@@ -16,11 +16,10 @@ fi
 # Check Architecture
 # Spotifyd via Cargo is painful on single-core Pi Zero/1 (ARMv6).
 ARCH=$(uname -m)
-if [[ "$ARCH" == "armv6l" ]]; then
-    echo "Warning: You are running on ARMv6 (Pi Zero/1)."
-    echo "Compiling Spotifyd on this device will take HOURS."
-    echo "Press Ctrl+C to cancel, or wait 10 seconds to continue..."
-    sleep 10
+if [ "$ARCH" != "armv7l" ] && [ "$ARCH" != "aarch64" ] && [ "$ARCH" != "x86_64" ]; then
+    echo "Error: Unsupported architecture: $ARCH"
+    echo "Supported architectures are: armv7l (ARMv7), aarch64 (ARMv8), x86_64."
+    exit 1
 fi
 
 # --- CONFIGURATION ---
@@ -68,9 +67,9 @@ REQUIRED_PKGS=(
     "pamixer"
     "liblgpio-dev"
     "swig"
-    "bt-agent"
     "bluez-tools"
     "curl"
+    "p7zip-full"
 )
 
 echo -e "${YELLOW}--> Checking System Dependencies...${NC}"
@@ -160,20 +159,62 @@ mkdir -p "$USER_HOME/.config/spotifyd"
 cp "$ASSETS_DIR/install/configs/spotifyd.conf" "$USER_HOME/.config/spotifyd/spotifyd.conf"
 mkdir -p "$USER_HOME/.config/pipewire/pipewire.conf.d"
 cp "$ASSETS_DIR/install/configs/virtual-cable.conf" "$USER_HOME/.config/pipewire/pipewire.conf.d/virtual-cable.conf"
+mkdir -p "$USER_HOME/.config/falkTX"
+cp "$ASSETS_DIR/install/configs/Carla2.conf" "$USER_HOME/.config/falkTX/Carla2.conf"
 # Fix permissions since we are running as sudo
 chown -R $SUDO_USER:$SUDO_USER "$USER_HOME/.config"
 
-# Carla Init & Merge
-echo "Initializing Carla..."
-# Run carla as user, timeout after 5s
-sudo -u $SUDO_USER timeout 5s carla &
-CARLA_PID=$!
-sleep 5
-kill -9 $CARLA_PID 2>/dev/null
+# --- INSTALL LSP PLUGINS ---
+echo -e "${YELLOW}--> Installing LSP Plugins (VST)...${NC}"
 
-echo "Merging Carla Settings..."
-python3 "$ASSETS_DIR/install/scripts/configure_carla.py" "$USER_HOME/.config/falkTX/Carla2.conf"
-check_status "Carla Config Merge"
+# Get correct Download URL
+LSP_VERSION="1.2.26"
+BASE_URL="https://github.com/sadko4u/lsp-plugins/releases/download/$LSP_VERSION"
+
+if [[ "$ARCH" == "x86_64" ]]; then
+    LSP_FILE="lsp-plugins-$LSP_VERSION-Linux-x86_64.7z"
+elif [[ "$ARCH" == "aarch64" ]]; then
+    LSP_FILE="lsp-plugins-$LSP_VERSION-Linux-aarch64.7z"
+elif [[ "$ARCH" == "armv7l" ]]; then
+    LSP_FILE="lsp-plugins-$LSP_VERSION-Linux-arm32.7z"
+else
+    echo -e "${RED}Error: Unsupported architecture $ARCH for LSP Plugins.${NC}"
+    exit 1
+fi
+
+# Check if already installed
+if [ -d "/usr/lib/vst/lsp-plugins.vst" ]; then
+    echo -e "${GREEN}[OK] LSP Plugins already installed.${NC}"
+else
+    echo "Downloading $LSP_FILE..."
+
+    # Download
+    wget "$BASE_URL/$LSP_FILE" -O "$LSP_FILE"
+    
+    # Extract to a temp folder
+    echo "Extracting..."
+    mkdir -p lsp_temp
+    7z x "$LSP_FILE" -olsp_temp > /dev/null
+
+    # Move the VST2 folder to the correct system location
+    echo "Installing to /usr/lib/vst..."
+    sudo mkdir -p /usr/lib/vst
+
+    # Find the VST2 folder regardless of internal naming
+    VST_SOURCE=$(find lsp_temp -type d -name "lsp-plugins.vst" | head -n 1)
+    
+    if [ -d "$VST_SOURCE" ]; then
+        sudo cp -r "$VST_SOURCE" /usr/lib/vst/
+        check_status "LSP VST Installation"
+    else
+        echo -e "${RED}Error: Could not find lsp-plugins.vst inside archive!${NC}"
+        exit 1
+    fi
+
+    # Cleanup
+    rm "$LSP_FILE"
+    rm -rf lsp_temp
+fi
 
 # PulseAudio
 PA_CONF="/etc/pulse/daemon.conf"
