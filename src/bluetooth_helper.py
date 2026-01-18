@@ -1,112 +1,157 @@
-import dbus, subprocess
+import asyncio
+from dbus_next.aio import MessageBus
+from dbus_next.constants import BusType
+from dbus_next import Variant
 
-def get_target_transport():
+async def _get_bus():
+    """Connect to the System Bus."""
+    return await MessageBus(bus_type=BusType.SYSTEM).connect()
+
+async def _get_bluez_objects(bus):
     """
-    Scans for ANY active Bluetooth Audio Transport and sets its volume.
-    Maps 0-100% (Input) to 0-127 (BlueZ Scale).
+    Fetch all managed objects from BlueZ (Devices, Transports, Adapters).
+    This replaces the slow 'bluetoothctl' parsing.
     """
+    # Get the ObjectManager
+    introspection = await bus.introspect("org.bluez", "/")
+    obj_manager = bus.get_proxy_object("org.bluez", "/", introspection)
+    iface = obj_manager.get_interface("org.freedesktop.DBus.ObjectManager")
+    
+    # Return dictionary of all objects
+    return await iface.call_get_managed_objects()
+
+async def _find_transport_path(bus):
+    """Finds the first active MediaTransport1 (A2DP Audio Stream)."""
+    objects = await _get_bluez_objects(bus)
+    
+    for path, interfaces in objects.items():
+        if "org.bluez.MediaTransport1" in interfaces:
+            # Found an audio transport
+            return path
+    return None
+
+async def _set_volume_async(volume_percent):
+    """Async implementation of setting volume."""
+    bus = await _get_bus()
     try:
-        # Connect to System Bus
-        bus = dbus.SystemBus()
-        
-        # Get the Object Manager (The "Master List" of all BlueZ objects)
-        manager = dbus.Interface(bus.get_object("org.bluez", "/"), "org.freedesktop.DBus.ObjectManager")
-        objects = manager.GetManagedObjects()
+        transport_path = await _find_transport_path(bus)
+        if not transport_path:
+            return
 
-        target_transport = None
+        # Convert 0-100 to 0-127 (BlueZ uint16 scale)
+        vol_clamped = max(0, min(100, volume_percent))
+        bt_volume = int((vol_clamped / 100) * 127)
 
-        # Iterate through all objects to find one that is a "MediaTransport1"
-        for path, interfaces in objects.items():
-            if "org.bluez.MediaTransport1" in interfaces:
-                
-                # Check if this transport is connected/active (usually checks for 'State')
-                # But typically if it exists, it's the one we want.
-                # If you have multiple phones connected, this grabs the first one it finds.
-                target_transport = path
-                break
+        # Get the Properties interface for this specific transport
+        introspection = await bus.introspect("org.bluez", transport_path)
+        proxy = bus.get_proxy_object("org.bluez", transport_path, introspection)
+        props = proxy.get_interface("org.freedesktop.DBus.Properties")
+
+        # Set the Volume
+        await props.call_set("org.bluez.MediaTransport1", "Volume", Variant('q', bt_volume))
+        print(f"Bluetooth Volume set to {bt_volume}/127 (path: {transport_path})")
         
-        return target_transport, bus
+    except Exception as e:
+        print(f"DBus Set Error: {e}")
+    finally:
+        # Close connection to free resources
+        bus.disconnect()
+
+async def _get_volume_async():
+    """Async implementation of getting volume."""
+    bus = await _get_bus()
+    try:
+        transport_path = await _find_transport_path(bus)
+        if not transport_path:
+            return None
+
+        # Get Property
+        introspection = await bus.introspect("org.bluez", transport_path)
+        proxy = bus.get_proxy_object("org.bluez", transport_path, introspection)
+        props = proxy.get_interface("org.freedesktop.DBus.Properties")
+
+        # Read Volume
+        bt_volume = await props.call_get("org.bluez.MediaTransport1", "Volume")
+        
+        # Convert back to percent (bt_volume is a Variant, .value gets the int)
+        return int((bt_volume.value / 127) * 100)
 
     except Exception as e:
-        print(f"Failed to get Transport: {e}")
-        return None, None
+        print(f"DBus Get Error: {e}")
+        return None
+    finally:
+        bus.disconnect()
+
+async def _get_connected_devices_async():
+    """Async scan for connected devices (No more subprocess!)."""
+    bus = await _get_bus()
+    connected_macs = []
+    try:
+        objects = await _get_bluez_objects(bus)
+        
+        for path, interfaces in objects.items():
+            # Check if it is a Device
+            if "org.bluez.Device1" in interfaces:
+                device_props = interfaces["org.bluez.Device1"]
+                
+                # Check 'Connected' property (It comes as a Variant)
+                is_connected = device_props.get("Connected", Variant('b', False)).value
+                
+                if is_connected:
+                    # The Address is also a property
+                    address = device_props.get("Address", Variant('s', "")).value
+                    if address:
+                        connected_macs.append(address)
+                        
+    except Exception as e:
+        print(f"DBus Device Scan Error: {e}")
+    finally:
+        bus.disconnect()
+        
+    return connected_macs
+
+async def _disconnect_device_async(mac_address):
+    """Disconnects a device using DBus methods."""
+    bus = await _get_bus()
+    try:
+        objects = await _get_bluez_objects(bus)
+        
+        for path, interfaces in objects.items():
+            if "org.bluez.Device1" in interfaces:
+                props = interfaces["org.bluez.Device1"]
+                addr = props.get("Address", Variant('s', "")).value
+                
+                # Found the target device
+                if addr == mac_address:
+                    print(f"Found device at {path}, disconnecting...")
+                    introspection = await bus.introspect("org.bluez", path)
+                    device = bus.get_proxy_object("org.bluez", path, introspection)
+                    interface = device.get_interface("org.bluez.Device1")
+                    
+                    await interface.call_disconnect()
+                    print(f"Disconnected {mac_address}")
+                    return
+
+    except Exception as e:
+        print(f"DBus Disconnect Error: {e}")
+    finally:
+        bus.disconnect()
+
+
+# Synchronous wrappers
 
 def set_bluetooth_volume(volume_percent):
-    """
-    set the bluetooth volume of the current connected device
-
-    Args:
-        volume_percent (int): The desired volume level as a percentage (0-100).
-    """
-    target_transport, bus = get_target_transport()
-
-    if target_transport:
-        # Convert 0-100 scale to 0-127 scale
-        # Ensure volume is clamped between 0 and 100 first
-        volume_percent = max(0, min(100, volume_percent))
-        bt_volume = int((volume_percent / 100) * 127)
-
-        # Set the Property
-        transport_obj = bus.get_object("org.bluez", target_transport)
-        props = dbus.Interface(transport_obj, "org.freedesktop.DBus.Properties")
-        
-        # Signature: Interface, Property Name, Value (UInt16)
-        props.Set("org.bluez.MediaTransport1", "Volume", dbus.UInt16(bt_volume))
-        
-        print(f"Bluetooth Volume set to {bt_volume}/127")
-    else:
-        # This is normal if Bluetooth is not connected.
-        pass
+    """Sets volume of current transport (0-100)."""
+    asyncio.run(_set_volume_async(volume_percent))
 
 def get_bluetooth_volume():
-    """
-    get the bluetooth volume of the current connected device
-    
-    Returns:
-        int: The current volume level as a percentage (0-100), or None if no device is connected.
-    """
-    target_transport, bus = get_target_transport()
-
-    if target_transport:
-        transport_obj = bus.get_object("org.bluez", target_transport)
-        props = dbus.Interface(transport_obj, "org.freedesktop.DBus.Properties")
-        
-        bt_volume = props.Get("org.bluez.MediaTransport1", "Volume")
-        
-        # Convert 0-127 scale to 0-100 scale
-        volume_percent = int((bt_volume / 127) * 100)
-        
-        print(f"Bluetooth Volume is {bt_volume}/127 ({volume_percent}%)")
-        
-        return volume_percent
-    else:
-        return None
+    """Gets volume of current transport (0-100). Returns None if not playing."""
+    return asyncio.run(_get_volume_async())
 
 def get_connected_devices():
-    """
-    Returns a list of MAC addresses of currently CONNECTED devices.
-    """
-    connected = []
-    try:
-        # Ask bluetoothctl for info on all available devices
-        # We filter for "Connected: yes"
-        # This is a bit heavy, so we use a faster piped command
-        output = subprocess.check_output("bluetoothctl devices | cut -f2 -d' ' | while read uuid; do bluetoothctl info $uuid; done", shell=True, text=True)
-
-        current_mac = None
-        for line in output.splitlines():
-            if line.startswith("Device"):
-                current_mac = line.split()[1]
-            if "Connected: yes" in line and current_mac:
-                connected.append(current_mac)
-    except Exception:
-        # Fallback or simple error handling
-        pass
-    return connected
+    """Returns list of MAC addresses of currently connected devices."""
+    return asyncio.run(_get_connected_devices_async())
 
 def disconnect_device(mac_address):
-    """
-    Kicks a specific device off.
-    """
-    print(f"--- Kicking Device: {mac_address} ---")
-    subprocess.run(["bluetoothctl", "disconnect", mac_address], check=False)
+    """Force disconnects a specific MAC address."""
+    asyncio.run(_disconnect_device_async(mac_address))
