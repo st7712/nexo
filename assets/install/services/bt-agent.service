@@ -1,0 +1,14 @@
+[Unit]
+Description=Bluetooth Auth Agent (Auto-Accept)
+After=bluetooth.service
+Requires=bluetooth.service
+
+[Service]
+ExecStart=/usr/bin/bt-agent --capability=NoInputNoOutput
+Type=simple
+Restart=always
+RestartSec=5
+KillSignal=SIGKILL
+
+[Install]
+WantedBy=multi-user.target
