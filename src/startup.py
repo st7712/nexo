@@ -85,7 +85,7 @@ def set_default_sink():
     except Exception as e:
         print(f"Error setting default sink: {e}")
 
-def start_up(vol=50, max_vol=30):
+def start_up(vol=50, max_vol=50):
     """
     Starts up necessary services: Carla and spotifyd.
     """

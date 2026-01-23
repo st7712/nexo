@@ -116,7 +116,7 @@ def find_hardware_sink():
         print(f"Failed to find hardware sink: {e}")
         return None
 
-def set_hardware_volume(volume_percent=30, forced_sink=None):
+def set_hardware_volume(volume_percent=50, forced_sink=None):
     """
     Finds the REAL hardware sink (ignoring Loopback) and sets volume.
     """

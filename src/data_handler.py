@@ -9,7 +9,7 @@ DEFAULT_CONFIG = {
     "device_name": "Nexo Home",
     "device_id": uuid.uuid4().hex,
     "volume": 100,
-    "max_volume": 30,
+    "max_volume": 55,
     "root_path": str(Path(__file__).resolve().parent.parent),
     "sounds": True,
     "wifi": {

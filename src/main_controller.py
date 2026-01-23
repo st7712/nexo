@@ -13,7 +13,7 @@ import data_handler
 # (as long as they run in the same process).
 state = {
     'volume': data_handler.db.get("volume", 50),
-    'max_volume': data_handler.db.get("max_volume", 30),
+    'max_volume': data_handler.db.get("max_volume", 50),
     'current_mode': 'spotify', # 'spotify' or 'bluetooth'
     'bt_owner_mac': None,
     'click_count': 0,
