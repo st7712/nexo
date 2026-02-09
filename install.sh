@@ -134,7 +134,7 @@ fi
 
 # --- INSTALL SPOTIFYD ---
 echo -e "${YELLOW}--> Checking Spotifyd...${NC}"
-if ! command -v spotifyd &> /dev/null; then
+if ! sudo -u "$SUDO_USER" command -v spotifyd &> /dev/null; then
     echo "Spotifyd not found. Installing Rust/Cargo..."
     
     # Install Rust as the user (not root)
