@@ -37,7 +37,7 @@ It runs a headless Python controller that seamlessly switches between **Spotify 
 - **Persistent Settings**: Remembers volume and EQ profiles across reboots.
 - **Pretty good frequency response**: The exact speaker with the listed parts has a decent frequency response:
 ![nexo curve](https://github.com/user-attachments/assets/7010921e-263e-4ea3-85f0-3655d68c097b)
-> Measured with an uncalibrated microphone with poor high frequency coverage
+> Measured with an uncalibrated microphone with poor high frequency coverage and at 40 % speaker total volume.
 
 
 ## Installation
