@@ -4,10 +4,6 @@ This directory contains all the documentation regarding the physical constructio
 
 Unlike standard 3D-printed speakers, Nexo aims for high-density acoustic properties by combining 3D printing, wood, and composite materials.
 
-<div align="center">
-  <img src="https://placehold.co/600x400?text=Nexo+Hardware+Overview" alt="Nexo Hardware" width="50%">
-</div>
-
 ## Documentation
 
 - **[Bill of Materials (BOM)](https://github.com/st7712/nexo/blob/main/hardware/bom.md)** - Full parts list, costs, and purchase links.
@@ -71,6 +67,6 @@ The main issue was the lack of heat inserts or at least somewhat inserted screw 
 ## 🖼️ Gallery
 
 <div align="center">
-  <img src="https://placehold.co/400x300?text=Wiring+Diagram" alt="Wiring" width="45%">
-  <img src="https://placehold.co/400x300?text=Printed+Parts" alt="Parts" width="45%">
+  <img height="300" alt="wiring diagram" src="https://github.com/user-attachments/assets/69685e06-cedf-429e-ba09-ace04cc23731" />
+  <img height="300" alt="parts" src="https://github.com/user-attachments/assets/7d42ad78-e2bb-411d-ba54-484c1e688d6e" />
 </div>
