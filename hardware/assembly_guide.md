@@ -33,7 +33,8 @@ To give the subwoofer weight and acoustic density:
 4.  **Let it cure for at least 48 hours.** The PVA slows down the drying process but prevents the plaster from cracking. Also make sure it's in a well ventilated and/or heated area, so that it's not wet.
 5.  Once it's all set, put some cotton wool (or polyfil) inside the enclosure, to help with bass response and make the enclosure feel "bigger" than it actually is.
 
-![Plaster Filling process](https://placehold.co/600x300?text=Plaster+Filling+Process)
+<img height="300" alt="image" src="https://github.com/user-attachments/assets/a50ba928-1fcf-4eff-88a3-3b3355b80033" />
+
 
 ### 3. Woodworking
 
@@ -49,7 +50,7 @@ The wooden board uses a kerf bending method to bend the sides of the board accor
 
 This part can definitely also be 3D printed out of PETG, which was initially planned anyways. I just thought wood might look better plus it saved like 600 grams of plastic.
 
-![Plaster Filling process](https://placehold.co/600x300?text=wood)
+<img height="300" alt="image" src="https://github.com/user-attachments/assets/7238f69f-06e1-48ed-ba6e-8845b81bbfbd" />
 
 ### Other Tasks
 
@@ -68,7 +69,7 @@ This part can definitely also be 3D printed out of PETG, which was initially pla
 
 Below is a _(very professional)_ connection map of the Raspberry Pi and small electronics:
 
-![Wiring Diagram](https://placehold.co/800x400?text=Wiring+Diagram+Placeholder)
+<img height="300" alt="wiring diagram" src="https://github.com/user-attachments/assets/69685e06-cedf-429e-ba09-ace04cc23731" />
 
 - The LEDs and buttons are connected to a common ground coming from the RPi (the buttons connections depend on your specific buttons, mine required 5V, GND and had a signal OUT).
 - Each LED is independently connected to the specific used pins to the RPi, every LED also has a resistor before connecting to the ground.
