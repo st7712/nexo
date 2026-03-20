@@ -16,6 +16,7 @@
 
   ![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
   ![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi-red.svg)
+  ![License](https://img.shields.io/badge/license-MIT-green.svg)
 </div>
 
 ---
