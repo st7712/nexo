@@ -306,6 +306,7 @@ ExecStartPre=/bin/sleep 30
 ExecStart=$PROJECT_DIR/launch.sh
 Restart=always
 RestartSec=5
+RuntimeMaxSec=1d
 
 [Install]
 WantedBy=default.target
