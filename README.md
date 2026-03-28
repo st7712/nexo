@@ -26,6 +26,11 @@
 
 It runs a headless Python controller that seamlessly switches between **Spotify Connect** (High Quality WiFi streaming) and **Bluetooth** (for guests/offline use). It also features professional-grade DSP (Digital Signal Processing) via **Carla**, allowing for active crossover tuning, EQ, and room correction directly on the device.
 
+<div align="center">
+  <img width="400" alt="Nexo speaker" src="https://github.com/user-attachments/assets/0d26cec0-fb11-46b1-b931-58e80472b04a" />
+</div>
+
+
 ## Features
 
 - **Priority Audio Switching**: Automatically switches inputs. Playing Spotify pauses Bluetooth; stopping Spotify wakes Bluetooth back up.
