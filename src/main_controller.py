@@ -7,6 +7,7 @@ import led_helper as leds
 import bluetooth_helper as bluetooth
 import system_helper as system
 import data_handler
+from carla_osc import set_loudness_contour_eq
 
 # --- SHARED STATE ---
 # This dictionary lives here. Anyone importing this file shares this state
@@ -23,6 +24,12 @@ state = {
     'active_btn': None,
 }
 
+LOUDNESS_SLOPES = {
+    40: 0.00394,
+    63: 0.00521,
+    100: 0.00372,
+}
+
 CONNECT_SOUND_PATH = f"{data_handler.db.get('root_path')}/assets/sounds/connect.wav"
 
 # volume functions
@@ -35,27 +42,40 @@ def change_volume(amount, override=False):
     """
     Main volume function. Called by Buttons OR API.
     """
+    old_volume = state['volume']
+    
     # Update State
     if override:
-        state['volume'] = amount
+        new_volume = max(0, min(100, amount))
     else:
-        state['volume'] = max(0, min(100, state['volume'] + amount))
+        new_volume = max(0, min(100, state['volume'] + amount))
+        
+    state['volume'] = new_volume
     
-    # Update Hardware (Spotify or Bluetooth)
-    if state['current_mode'] == 'bluetooth':
-        bluetooth.set_bluetooth_volume(state['volume'])
-        print(f"Vol (BT): {state['volume']}")
-    else:
-        spotify.set_volume(state['volume'])
-        print(f"Vol (Spotify): {state['volume']}")
+    if new_volume > old_volume:
+        # Drop EQ first to prevent clipping
+        update_loudness_contour(new_volume)
+        _apply_hardware_volume(new_volume)
+    elif new_volume < old_volume:
+        # Drop Amp volume first to prevent bass spikes
+        _apply_hardware_volume(new_volume)
+        update_loudness_contour(new_volume)
 
-    # Visual Feedback
+    # Visual Feedback and save to DB
     leds.update_volume_display(state['volume'])
-    
-    # Save to DB
     data_handler.db.set("volume", state['volume'])
 
+def _apply_hardware_volume(vol):
+    """Helper function to apply volume changes to the correct output."""
+    if state['current_mode'] == 'bluetooth':
+        bluetooth.set_bluetooth_volume(vol)
+        print(f"Vol (BT): {vol}")
+    else:
+        spotify.set_volume(vol)
+        print(f"Vol (Spotify): {vol}")
+
 def get_volume():
+    sync_volume() # Ensure we have the latest volume before returning
     return state['volume']
 
 # media control functions
@@ -159,7 +179,7 @@ def background_worker_loop():
             print(">>> Priority: Spotify took over.")
             system.turn_off_bluetooth()
             state['current_mode'] = 'spotify'
-            system.play_sound(CONNECT_SOUND_PATH, volume=state['volume'] * 655)  # Scale 0-100 to 0-65536
+            system.play_sound(CONNECT_SOUND_PATH, volume=(get_volume() * 300))  # Scale 0-100 to 0-65536
             leds.ramp_main_led(1.0) # Feedback
 
         # Spotify stopped -> Restore BT
@@ -211,9 +231,48 @@ def _bluetooth_bouncer():
     except Exception as e:
         print(f"Enforcer Error: {e}")
 
+def volume_worker_loop():
+    """Polls playerctl at 10Hz to catch external volume changes instantly."""
+    
+    last_known_volume = get_volume()
+    
+    while True:
+        try:
+            result = subprocess.run(
+                ["playerctl", "volume"], 
+                capture_output=True, 
+                text=True, 
+                timeout=0.2
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                external_vol_float = float(result.stdout.strip())
+                current_vol = int(external_vol_float * 100)
+                
+                if current_vol != last_known_volume:
+                    state['volume'] = current_vol
+                    update_loudness_contour(current_vol)
+                    
+                    leds.update_volume_display(current_vol)
+                    data_handler.db.set("volume", current_vol)
+                    
+                    last_known_volume = current_vol
+                    
+        except subprocess.TimeoutExpired:
+            pass # DBus was busy, just try again next loop
+        except ValueError:
+            pass # playerctl returned something weird (not a number)
+        except Exception as e:
+            # playerctl might return an error if no players are active. Just ignore.
+            pass
+            
+        sleep(0.1)
+
 def start_workers():
     t = Thread(target=background_worker_loop, daemon=True)
     t.start()
+    
+    v = Thread(target=volume_worker_loop, daemon=True)
+    v.start()
 
 def get_full_system_state():
     """
@@ -228,7 +287,7 @@ def get_full_system_state():
 
     # Combine with System State
     full_state = {
-        "volume": state['volume'],
+        "volume": get_volume(),
         "mode": state['current_mode'],
         "track": track_data,
     }
@@ -241,7 +300,7 @@ def get_partial_system_state():
     """
     sync_volume()  # Ensure volume is up to date
     partial_state = {
-        "volume": state['volume'],
+        "volume": get_volume(),
         "status": system.is_spotify_active()[1],
         "position": spotify.get_track_position(),
     }
@@ -261,3 +320,18 @@ def connect_to_wifi(ssid, password):
 def pairing_mode():
     """Enters speaker pairing mode."""
     system.create_temp_hotspot()
+    
+def update_loudness_contour(current_volume):
+    """Updates the Loudness Contour EQ settings."""
+    vol_drop = 80 - current_volume # Calculate how much the volume is reduced from max
+    
+    eq_settings = {}
+    
+    for freq, slope in LOUDNESS_SLOPES.items():
+        osc_val = 0.5 + (slope * vol_drop) # Start at 0.5 (flat) and adjust based on volume drop
+        osc_val = max(0.5, min(1.0, osc_val)) # Clamp between 0.5 and 1
+        eq_settings[int(freq)] = round(osc_val, 3) # Round for cleaner OSC messages
+        
+    set_loudness_contour_eq(eq_settings)
+    
+    print(f"Loudness Contour Updated: {eq_settings}")
