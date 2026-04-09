@@ -59,6 +59,7 @@ def change_volume(amount, override=False):
     elif new_volume < old_volume:
         # Drop Amp volume first to prevent bass spikes
         _apply_hardware_volume(new_volume)
+        sleep(2) # Short delay to let hardware catch up before adjusting EQ
         update_loudness_contour(new_volume)
 
     # Visual Feedback and save to DB
