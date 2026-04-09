@@ -12,6 +12,7 @@ client = udp_client.SimpleUDPClient(IP, PORT)
 PLUGIN_EQ = 0
 WOOFER_SPLITTER = 1
 OTHER_SPLITTER = 2
+LOUDNESS_EQ = 4
 
 # Parameter ID for "Master" volume on the Splitters
 PARAM_SPLITTER_MASTER = 3 
@@ -86,3 +87,16 @@ def reset_eq_flat():
     print("Resetting EQ to flat (1.0)...")
     for freq in EQ_BANDS:
         set_eq_gain(freq, 0.0)
+
+def set_loudness_contour_eq(eq_settings):
+    """
+    Sets the EQ settings for the Loudness Contour EQ.
+    eq_settings: A dictionary mapping frequency (Hz) to gain value.
+    """
+    for freq, gain in eq_settings.items():
+        if freq not in EQ_BANDS:
+            print(f"Error: Frequency {freq}Hz not found in EQ map.")
+            continue
+        param_id = EQ_BANDS[freq]
+        _send_carla_command(LOUDNESS_EQ, param_id, gain)
+        print(f"Loudness Contour EQ: Set {freq}Hz to {gain}")
